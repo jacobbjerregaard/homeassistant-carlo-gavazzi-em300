@@ -1,0 +1,49 @@
+# Snyk (https://snyk.io) policy file.
+#
+# What ships vs. what is test-only
+# --------------------------------
+# The only dependency this integration installs into a user's Home Assistant is
+# `pymodbus` (declared in custom_components/carlo_gavazzi_em300/manifest.json).
+# It is kept current and is scanned on its own (see .github/workflows/snyk.yml,
+# which scans *only* the manifest runtime requirements).
+#
+# `requirements_test.txt` / `requirements_test_ha.txt` exist solely to install
+# the Home Assistant test harness (pytest-homeassistant-custom-component ->
+# homeassistant) for CI. The transitive packages they pull in - pillow, PyJWT,
+# zeroconf, orjson, requests, pyOpenSSL, uv, pytest, ... - are dev/CI-only, are
+# never installed in a user's Home Assistant, and are pinned *exactly* by Home
+# Assistant's own package_constraints.txt (e.g. `Pillow==12.0.0`), so they
+# cannot be upgraded independently without breaking the test install. Their
+# known vulnerabilities therefore do not affect shipped code; upstream fixes
+# arrive automatically when Home Assistant bumps its constraints.
+#
+# Silencing Snyk for the test (non-HA) dependencies
+# -------------------------------------------------
+# IMPORTANT: a `.snyk` `exclude` block does NOT apply to managed Open Source
+# (SCA) scans - it only affects Snyk Code/IaC. The Snyk docs are explicit:
+# "You cannot use an exclude block in a .snyk file for Open Source scans except
+# for unmanaged scans." So the only ways to keep the test manifests out of
+# Open Source results are:
+#   1. (durable) Exclude / deactivate the auto-imported requirements_test*.txt
+#      projects in the Snyk UI: app.snyk.io -> the org -> the two
+#      `requirements_test*.txt` projects -> Settings -> Deactivate (or use the
+#      target's "Edit exclusions" during import). Managed-pip manifest exclusion
+#      is UI-only by design.
+#   2. (in-repo) Suppress individual advisories the GitHub App *does* honor, by
+#      listing their SNYK-... ids in the `ignore:` section below.
+#
+# The `exclude` block is retained because it is still honored by Snyk Code/IaC
+# (if those products are ever enabled on the repo).
+version: v1.25.0
+exclude:
+  global:
+    - requirements_test.txt
+    - requirements_test_ha.txt
+# Per-advisory Open Source ignores (honored by the Snyk GitHub App). Add the
+# test-tree advisory ids here to silence them in PR checks, e.g.:
+#
+# ignore:
+#   SNYK-PYTHON-AIOHTTP-XXXXXXX:
+#     - '*':
+#         reason: HA-pinned test-only transitive dep; never shipped to users
+#         # no `expires:` -> permanent

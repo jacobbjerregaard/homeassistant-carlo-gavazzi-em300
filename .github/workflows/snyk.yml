@@ -1,0 +1,72 @@
+name: Snyk Security
+
+# Dependency vulnerability scanning with Snyk. Findings are uploaded as SARIF
+# to GitHub code scanning (Security > Code scanning).
+#
+# Scans only the dependencies shipped to users (manifest.json requirements).
+# The Home Assistant test/CI dependency tree (requirements_test*.txt) is
+# dev-only and intentionally out of scope - see the .snyk policy file.
+#
+# Requires a repository secret named SNYK_TOKEN (from https://app.snyk.io
+# account settings). When the secret is absent the scan steps are skipped so
+# the workflow stays green on forks / before the token is configured.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  security:
+    name: Snyk dependency scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Skip notice
+        if: env.SNYK_TOKEN == ''
+        run: echo "SNYK_TOKEN secret not set - skipping Snyk scan. Add it under Settings > Secrets to enable."
+
+      - name: Run Snyk to check for vulnerabilities
+        if: env.SNYK_TOKEN != ''
+        continue-on-error: true # report findings, don't fail the build
+        run: |
+          npm install -g snyk
+          # Scan only the runtime requirements declared in manifest.json (what
+          # users actually install). Scanning as pip avoids the tooling-only
+          # pyproject.toml being mistaken for a Poetry project; `|| true` keeps
+          # any findings from failing the step.
+          python3 - <<'PY' > runtime-requirements.txt
+          import json
+          mf = json.load(open("custom_components/carlo_gavazzi_em300/manifest.json"))
+          print("\n".join(mf.get("requirements", [])))
+          PY
+          echo "Scanning shipped runtime requirements:"; cat runtime-requirements.txt
+          snyk test \
+            --package-manager=pip \
+            --file=runtime-requirements.txt \
+            --sarif-file-output=snyk.sarif || true
+
+      - name: Upload result to GitHub Code Scanning
+        # Only upload when a SARIF file was actually produced.
+        if: env.SNYK_TOKEN != '' && hashFiles('snyk.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: snyk.sarif

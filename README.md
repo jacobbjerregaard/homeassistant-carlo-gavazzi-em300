@@ -1,3 +1,9 @@
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
+
+[![CodeQL](https://github.com/jacobbjerregaard/homeassistant-carlo-gavazzi-em300/actions/workflows/codeql.yml/badge.svg)](https://github.com/jacobbjerregaard/homeassistant-carlo-gavazzi-em300/actions/workflows/codeql.yml)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Known Vulnerabilities](https://snyk.io/test/github/jacobbjerregaard/homeassistant-carlo-gavazzi-em300/badge.svg)](https://snyk.io/test/github/jacobbjerregaard/homeassistant-carlo-gavazzi-em300)
+
 # Carlo Gavazzi EM300 / ET300 for Home Assistant
 
 A Home Assistant custom integration for Carlo Gavazzi **EM300** and **ET300**
