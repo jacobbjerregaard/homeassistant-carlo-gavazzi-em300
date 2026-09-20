@@ -40,29 +40,45 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
       - name: Skip notice
         if: env.SNYK_TOKEN == ''
         run: echo "SNYK_TOKEN secret not set - skipping Snyk scan. Add it under Settings > Secrets to enable."
 
       - name: Run Snyk to check for vulnerabilities
         if: env.SNYK_TOKEN != ''
-        continue-on-error: true # report findings, don't fail the build
         run: |
           npm install -g snyk
           # Scan only the runtime requirements declared in manifest.json (what
-          # users actually install). Scanning as pip avoids the tooling-only
-          # pyproject.toml being mistaken for a Poetry project; `|| true` keeps
-          # any findings from failing the step.
+          # users actually install).
           python3 - <<'PY' > runtime-requirements.txt
           import json
           mf = json.load(open("custom_components/carlo_gavazzi_em300/manifest.json"))
           print("\n".join(mf.get("requirements", [])))
           PY
           echo "Scanning shipped runtime requirements:"; cat runtime-requirements.txt
+          # Snyk resolves a pip project from the *installed* environment, so the
+          # requirements have to be present or it fails with SNYK-OS-PYTHON-0013
+          # ("Missing required packages") instead of scanning anything.
+          pip install -r runtime-requirements.txt
+          # Scanning as pip avoids the tooling-only pyproject.toml being mistaken
+          # for a Poetry project.
           snyk test \
             --package-manager=pip \
             --file=runtime-requirements.txt \
-            --sarif-file-output=snyk.sarif || true
+            --sarif-file-output=snyk.sarif && rc=$? || rc=$?
+          # 0 = clean, 1 = vulnerabilities found (report them, don't fail the
+          # build). Anything higher is Snyk itself erroring, which must not pass
+          # as a clean scan.
+          if [ "$rc" -gt 1 ]; then
+            echo "::error::snyk test failed with exit code $rc (scan error, not a finding)"
+            exit "$rc"
+          fi
+          echo "snyk test exit code $rc"
 
       - name: Upload result to GitHub Code Scanning
         # Only upload when a SARIF file was actually produced.
