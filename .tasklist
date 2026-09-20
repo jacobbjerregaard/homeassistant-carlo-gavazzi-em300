@@ -14,6 +14,9 @@
 [x] Write Home Assistant tests (setup, sensors, config flow, options)
 [x] Verify: ruff, mypy, full test suite
 [x] CI workflows (lint, tests, HACS + hassfest validation)
+[x] Code review follow-ups: sanitise decoded strings, close the connection on
+    a failed setup, remember the identified series, add a reconfigure step,
+    test the translations, drop the dead abstractions
 
 Not done / deliberately out of scope:
 [ ] Write number.py and switch.py (the programming-parameter tables of

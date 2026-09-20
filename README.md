@@ -21,8 +21,10 @@ meter is documented as ET-series and EM330 only, and the per-phase *exported*
 energy totalizers as ET-series only, so those entities are not created on an
 EM340 where they could only ever report zero.
 
-A meter that does not answer the identification read still works; it simply
-gets the full register set.
+The answer is remembered on the config entry, so a meter that fails the
+identification read once keeps the entity set it had rather than growing a
+batch of entities it can never populate. A meter that has *never* answered the
+read gets the full register set, which is the safer default.
 
 > An EM340 reporting code **340** is a pre-production engineering sample that
 > stores 32-bit values MSW-first instead of LSW-first. It is detected and
@@ -118,6 +120,19 @@ installation with forty-odd entities.
 The polling interval defaults to 30 seconds and can be changed under the
 integration's **Configure** option. The meter refreshes its own measurements
 about once a second, so polling faster than that only adds bus traffic.
+
+## Changing the connection
+
+If the serial port is renamed or the gateway moves to a new address, use
+**Reconfigure** on the device rather than deleting and re-adding it. The entry
+keeps its identity, so all history and any automations referencing its entities
+survive. A meter can also be moved between RS485 and a TCP gateway this way.
+
+When both the entry and the meter report a serial number, they have to match:
+reconfiguring points an entry at the same meter somewhere else, and Home
+Assistant will refuse to graft one meter's history onto another. Meters that do
+not implement the serial-number block are identified only by where they live,
+so there is nothing to check and the move goes through.
 
 ## How the register map works
 

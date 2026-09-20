@@ -28,6 +28,10 @@ CONF_SERIAL_NUMBER = "serial_number"
 CONF_MODEL = "model"
 CONF_FIRMWARE = "firmware"
 
+# The meter series identified at setup, remembered so a failed identification
+# read does not change which entities exist.
+CONF_SERIES = "series"
+
 
 class Transport(StrEnum):
     """How the integration reaches the meter."""

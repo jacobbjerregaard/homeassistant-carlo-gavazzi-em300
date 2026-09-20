@@ -9,6 +9,14 @@
           "tcp": "Network (Modbus TCP)"
         }
       },
+      "reconfigure": {
+        "title": "Change the connection",
+        "description": "How should this meter be reached?",
+        "menu_options": {
+          "serial": "Serial (RS485)",
+          "tcp": "Network (Modbus TCP)"
+        }
+      },
       "serial": {
         "title": "RS485 connection",
         "description": "These settings must match the meter's own serial port configuration menu.",
@@ -50,7 +58,9 @@
       "invalid_port": "That serial port does not exist on this system."
     },
     "abort": {
-      "already_configured": "This meter is already configured."
+      "already_configured": "This meter is already configured.",
+      "reconfigure_successful": "The connection settings were updated.",
+      "wrong_meter": "That is a different meter. This entry is for serial number {expected}, but the meter answering reported {found}. Add it as a new device instead, so the existing history stays with the meter it belongs to."
     }
   },
   "options": {

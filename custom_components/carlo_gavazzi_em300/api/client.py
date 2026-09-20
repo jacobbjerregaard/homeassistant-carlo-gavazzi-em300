@@ -13,7 +13,7 @@ import asyncio
 import logging
 import os
 import sys
-from collections.abc import Mapping
+from collections.abc import Iterable
 
 from pymodbus import FramerType
 from pymodbus.client import ModbusBaseClient
@@ -102,11 +102,10 @@ class Em300Client:
         """
         return (await self.read_holding_registers(address, 1))[address]
 
-    async def read_batch(self, reads: Mapping[int, int] | list[tuple[int, int]]):
+    async def read_batch(self, reads: Iterable[tuple[int, int]]) -> dict[int, int]:
         """Execute several ``(start, length)`` reads into one address map."""
-        pairs = reads.items() if isinstance(reads, Mapping) else reads
         values: dict[int, int] = {}
-        for start, length in pairs:
+        for start, length in reads:
             values.update(await self.read_holding_registers(start, length))
         return values
 

@@ -91,7 +91,6 @@ class TestRegisterBatch:
 
         assert batch.reads == [(0x0000, 2)]
         assert 0x000B not in batch.addresses
-        assert batch.standalone == (standalone,)
 
     def test_registers_are_kept_for_decoding(self):
         registers = [i32("a", 0), i32("b", 2)]

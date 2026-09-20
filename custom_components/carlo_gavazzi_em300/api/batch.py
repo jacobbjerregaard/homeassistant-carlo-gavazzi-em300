@@ -63,16 +63,13 @@ def _split_run(start: int, end: int, maximum_length: int) -> list[tuple[int, int
 class RegisterBatch:
     """The read requests needed to cover a set of registers.
 
-    Registers the protocol requires be read one word at a time are kept out of
-    the batched reads and exposed separately via :attr:`standalone`.
+    Registers the protocol requires be read one word at a time are excluded;
+    the device layer reads those individually.
     """
 
     def __init__(self, registers: Iterable[Em300Register]) -> None:
         """Plan the reads covering every word the given registers span."""
         self.registers: tuple[Em300Register, ...] = tuple(registers)
-        self.standalone: tuple[Em300Register, ...] = tuple(
-            register for register in self.registers if register.standalone
-        )
 
         # A register spans ``length`` words, not one: collecting only the start
         # address would leave the high word of every 32-bit value unread.

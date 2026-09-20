@@ -13,8 +13,6 @@ of forty-odd, without anyone having to edit YAML to get the rest.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntityDescription,
@@ -34,20 +32,15 @@ from homeassistant.const import (
 )
 
 
-@dataclass(frozen=True, kw_only=True)
-class Em300SensorEntityDescription(SensorEntityDescription):
-    """Describes an EM/ET300 sensor entity."""
-
-
 def _measurement(
     key: str,
     device_class: SensorDeviceClass,
     unit: str | None,
     *,
     default: bool = False,
-) -> Em300SensorEntityDescription:
+) -> SensorEntityDescription:
     """Describe an instantaneous reading: a voltage, current or power."""
-    return Em300SensorEntityDescription(
+    return SensorEntityDescription(
         key=key,
         translation_key=key,
         device_class=device_class,
@@ -64,9 +57,9 @@ def _total(
     unit: str,
     *,
     default: bool = False,
-) -> Em300SensorEntityDescription:
+) -> SensorEntityDescription:
     """Describe a cumulative meter reading that climbs or is reset."""
-    return Em300SensorEntityDescription(
+    return SensorEntityDescription(
         key=key,
         translation_key=key,
         device_class=device_class,
@@ -90,7 +83,7 @@ KWH = UnitOfEnergy.KILO_WATT_HOUR
 KVARH = UnitOfReactiveEnergy.KILO_VOLT_AMPERE_REACTIVE_HOUR
 HOURS = UnitOfTime.HOURS
 
-EM300_SENSOR_DESCRIPTIONS: tuple[Em300SensorEntityDescription, ...] = (
+EM300_SENSOR_DESCRIPTIONS: tuple[SensorEntityDescription, ...] = (
     # --- System aggregates (enabled by default) ---------------------------
     _measurement("v_ln_sys", SensorDeviceClass.VOLTAGE, VOLT, default=True),
     _measurement("v_ll_sys", SensorDeviceClass.VOLTAGE, VOLT, default=True),
@@ -144,7 +137,7 @@ EM300_SENSOR_DESCRIPTIONS: tuple[Em300SensorEntityDescription, ...] = (
     _total("kwh_neg_l2", SensorDeviceClass.ENERGY, KWH),
     _total("kwh_neg_l3", SensorDeviceClass.ENERGY, KWH),
     # --- Diagnostics ------------------------------------------------------
-    Em300SensorEntityDescription(
+    SensorEntityDescription(
         key="run_hour_meter",
         translation_key="run_hour_meter",
         device_class=SensorDeviceClass.DURATION,
@@ -155,7 +148,7 @@ EM300_SENSOR_DESCRIPTIONS: tuple[Em300SensorEntityDescription, ...] = (
         suggested_display_precision=2,
     ),
     # 0 means L1-L2-L3, 1 means L1-L3-L2; only meaningful on 3-phase systems.
-    Em300SensorEntityDescription(
+    SensorEntityDescription(
         key="phase_sequence",
         translation_key="phase_sequence",
         device_class=SensorDeviceClass.ENUM,

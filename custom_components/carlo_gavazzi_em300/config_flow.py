@@ -6,7 +6,11 @@ import logging
 from typing import Any
 
 import voluptuous as vol
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    SOURCE_RECONFIGURE,
+    ConfigFlow,
+    ConfigFlowResult,
+)
 from homeassistant.const import (
     CONF_ADDRESS,
     CONF_HOST,
@@ -31,6 +35,7 @@ from .const import (
     CONF_PARITY,
     CONF_SERIAL_NUMBER,
     CONF_SERIAL_PORT,
+    CONF_SERIES,
     CONF_STOPBITS,
     CONF_TRANSPORT,
     DEFAULT_ADDRESS,
@@ -165,10 +170,6 @@ class Em300ConfigFlow(ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
-    def __init__(self) -> None:
-        """Initialise config flow state."""
-        self._transport = Transport.SERIAL
-
     @staticmethod
     @callback
     def async_get_options_flow(config_entry) -> Em300OptionsFlowHandler:
@@ -181,6 +182,19 @@ class Em300ConfigFlow(ConfigFlow, domain=DOMAIN):
         """Ask how the meter is reached."""
         return self.async_show_menu(
             step_id="user",
+            menu_options=[Transport.SERIAL, Transport.TCP],
+        )
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Change how an already-configured meter is reached.
+
+        Offers the transport menu again, so a meter can also be moved between
+        RS485 and a TCP gateway without losing its history.
+        """
+        return self.async_show_menu(
+            step_id="reconfigure",
             menu_options=[Transport.SERIAL, Transport.TCP],
         )
 
@@ -205,10 +219,18 @@ class Em300ConfigFlow(ConfigFlow, domain=DOMAIN):
         user_input: dict[str, Any] | None,
     ) -> ConfigFlowResult:
         """Show a transport form, then try to talk to the meter behind it."""
-        self._transport = transport
+        reconfiguring = self.source == SOURCE_RECONFIGURE
 
         if user_input is None:
-            return self.async_show_form(step_id=transport, data_schema=schema_builder())
+            # Prefill from the entry being reconfigured. Switching transport
+            # is allowed, and the schema builders fall back to their defaults
+            # for any key the old transport did not store.
+            defaults = (
+                dict(self._get_reconfigure_entry().data) if reconfiguring else None
+            )
+            return self.async_show_form(
+                step_id=transport, data_schema=schema_builder(defaults)
+            )
 
         data = {CONF_TRANSPORT: transport, **user_input}
 
@@ -221,6 +243,8 @@ class Em300ConfigFlow(ConfigFlow, domain=DOMAIN):
             _LOGGER.debug("Could not reach the meter: %s", err)
             errors = {"base": "cannot_connect"}
         else:
+            if reconfiguring:
+                return await self._async_reconfigure_entry(data, info)
             return await self._async_create_entry(data, info)
 
         return self.async_show_form(
@@ -255,14 +279,54 @@ class Em300ConfigFlow(ConfigFlow, domain=DOMAIN):
             else info.model
         )
 
-        data = {
+        return self.async_create_entry(
+            title=name, data={**self._device_data(data, info), CONF_NAME: name}
+        )
+
+    @staticmethod
+    def _device_data(data: dict[str, Any], info: Em300DeviceInfo) -> dict[str, Any]:
+        """Combine the connection settings with what the meter reported."""
+        return {
             **data,
-            CONF_NAME: name,
             CONF_MODEL: info.model,
             CONF_SERIAL_NUMBER: info.serial_number,
             CONF_FIRMWARE: info.firmware,
+            CONF_SERIES: info.series,
         }
-        return self.async_create_entry(title=name, data=data)
+
+    async def _async_reconfigure_entry(
+        self, data: dict[str, Any], info: Em300DeviceInfo
+    ) -> ConfigFlowResult:
+        """Point an existing entry at the meter that was just probed.
+
+        When both the entry and the meter report a serial number, that is the
+        meter's identity and it has to match: changing where an entry points
+        is a reconfiguration, pointing it at a *different* meter is a mistake
+        that would silently graft one meter's history onto another.
+
+        Meters that do not implement the serial-number block have no identity
+        beyond where they live -- which is exactly what is being changed here
+        -- so there is nothing to check.
+
+        The entry keeps its original unique id either way. Entity ids are
+        derived from it, and changing it would orphan every entity along with
+        its history.
+        """
+        entry = self._get_reconfigure_entry()
+        stored_serial = entry.data.get(CONF_SERIAL_NUMBER)
+
+        if stored_serial and info.serial_number != stored_serial:
+            return self.async_abort(
+                reason="wrong_meter",
+                description_placeholders={
+                    "expected": stored_serial,
+                    "found": info.serial_number or "none",
+                },
+            )
+
+        return self.async_update_reload_and_abort(
+            entry, data_updates=self._device_data(data, info)
+        )
 
     @staticmethod
     def _fallback_unique_id(data: dict[str, Any]) -> str:

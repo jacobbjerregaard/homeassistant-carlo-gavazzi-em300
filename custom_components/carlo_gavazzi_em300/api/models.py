@@ -54,6 +54,21 @@ class Series(StrEnum):
     ET340 = "ET340"
 
 
+def series_from_value(value: str | None) -> Series | None:
+    """Parse a stored series value, tolerating anything unrecognised.
+
+    Config entry data survives downgrades and hand-editing, so a value that is
+    no longer a known series is treated as "not identified" rather than raising
+    during setup.
+    """
+    if value is None:
+        return None
+    try:
+        return Series(value)
+    except ValueError:
+        return None
+
+
 #: Every series in the range; the default for registers with no restriction.
 ALL_SERIES: frozenset[Series] = frozenset(Series)
 

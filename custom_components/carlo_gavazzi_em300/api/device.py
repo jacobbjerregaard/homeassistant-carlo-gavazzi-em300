@@ -71,15 +71,22 @@ class Em300Device:
         """The Modbus unit id the meter answers on."""
         return self.client.unit
 
-    async def identify(self) -> Em300DeviceInfo:
+    async def identify(self, fallback_series: Series | None = None) -> Em300DeviceInfo:
         """Read the meter's identity and narrow the polled register set.
 
         Each read is attempted independently and tolerated on failure: an
         older meter may not implement the serial-number block, and that should
         degrade the device registry entry rather than block setup.
+
+        ``fallback_series`` is the series a previous setup identified. Without
+        it a transient failure on the identification read would widen the
+        register set back to everything, create entities for registers this
+        model does not have, and orphan them again on the next restart.
         """
         identification_code = await self._read_identification_code()
         series = series_for_identification_code(identification_code)
+        if series is None:
+            series = fallback_series
 
         if identification_code == CG_CODE_REVERSED_WORD_ORDER:
             _LOGGER.warning(

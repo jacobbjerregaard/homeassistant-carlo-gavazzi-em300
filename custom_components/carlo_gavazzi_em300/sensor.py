@@ -4,17 +4,17 @@ from __future__ import annotations
 
 from typing import Any
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorEntityDescription,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import Em300ConfigEntry, Em300Coordinator
 from .entity import Em300Entity
-from .entity_descriptions import (
-    EM300_SENSOR_DESCRIPTIONS,
-    PHASE_SEQUENCE_OPTIONS,
-    Em300SensorEntityDescription,
-)
+from .entity_descriptions import EM300_SENSOR_DESCRIPTIONS, PHASE_SEQUENCE_OPTIONS
 
 
 async def async_setup_entry(
@@ -41,13 +41,13 @@ async def async_setup_entry(
 class Em300Sensor(Em300Entity, SensorEntity):
     """A single decoded register, presented as a sensor."""
 
-    entity_description: Em300SensorEntityDescription
+    entity_description: SensorEntityDescription
 
     def __init__(
         self,
         coordinator: Em300Coordinator,
         entry: Em300ConfigEntry,
-        description: Em300SensorEntityDescription,
+        description: SensorEntityDescription,
     ) -> None:
         """Initialise the sensor from its description."""
         super().__init__(coordinator, entry)
