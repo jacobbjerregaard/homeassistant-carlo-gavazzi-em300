@@ -21,7 +21,7 @@
 Not done / deliberately out of scope:
 [ ] Write number.py and switch.py (the programming-parameter tables of
     section 2.9 are writable; nothing is exposed for writing yet)
-[ ] Verify readings against real hardware -- the register map is transcribed
-    from the protocol document and tested against it, but has never been
-    pointed at a meter
+[x] Verify readings against real hardware -- checked against a live EM340
+    (firmware B4) over a Modbus TCP gateway: word order, value weights,
+    addresses, model detection and serial decoding all confirmed
 [ ] Create the GitHub remote and push

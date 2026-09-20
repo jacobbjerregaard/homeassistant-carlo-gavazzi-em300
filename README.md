@@ -134,6 +134,28 @@ Assistant will refuse to graft one meter's history onto another. Meters that do
 not implement the serial-number block are identified only by where they live,
 so there is nothing to check and the move goes through.
 
+## Verified against hardware
+
+The register map was checked against a live **EM340, firmware B4**, reached
+through a Modbus TCP gateway. What that run confirmed:
+
+* Word order. V L1-N reads 238.6 V least-significant-word first, and
+  15,636,889.6 V the other way round.
+* The value weights, each by an independent cross-check: current at Ampere*1000
+  (238 V x 0.016 A = 3.8 VA against a reported 3.9 VA), power factor at PF*1000
+  (|W|/VA = 0.795 against a reported 0.799), frequency at Hz*10.
+* The addresses, by reading the same measurements again through table 2.6-1 and
+  comparing, and by checking that the per-phase energy totalizers sum to the
+  system total (they agreed to 0.013%, the meter's own rounding).
+* Model detection. Identification code 341 selected EM340 and correctly
+  narrowed the poll to 42 of the 46 registers, dropping the four the protocol
+  documents as ET-series or EM330 only.
+* The serial number decoder, on a real seven-character serial.
+
+Gateways vary: that one needed **Modbus TCP** framing, the default. A poll of
+five requests took about 1.25 s through the gateway, so the 30 s default
+interval leaves plenty of headroom.
+
 ## How the register map works
 
 Everything the integration reads comes from table 2.4-1 of *EM300 Series and
