@@ -1,5 +1,7 @@
 # Pure-logic unit tests (no Home Assistant). Runs on any recent Python.
 pytest>=8.0
 pytest-asyncio>=0.23
-pymodbus>=3.8.3
+# The serial extra pulls in pyserial, which AsyncModbusSerialClient needs
+# at construction time; pymodbus itself declares no dependencies.
+pymodbus[serial]>=3.8.3
 coverage>=7.0
