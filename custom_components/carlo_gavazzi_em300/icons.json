@@ -1,0 +1,10 @@
+{
+  "entity": {
+    "sensor": {
+      "phase_sequence": { "default": "mdi:sine-wave" },
+      "run_hour_meter": { "default": "mdi:timer-outline" },
+      "w_dmd": { "default": "mdi:chart-bell-curve" },
+      "w_dmd_peak": { "default": "mdi:chart-bell-curve-cumulative" }
+    }
+  }
+}

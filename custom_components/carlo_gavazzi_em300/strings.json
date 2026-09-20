@@ -1,0 +1,238 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Carlo Gavazzi EM300",
+        "description": "How is the meter connected?",
+        "menu_options": {
+          "serial": "Serial (RS485)",
+          "tcp": "Network (Modbus TCP)"
+        }
+      },
+      "serial": {
+        "title": "RS485 connection",
+        "description": "These settings must match the meter's own serial port configuration menu.",
+        "data": {
+          "serial_port": "Serial port",
+          "baudrate": "Baud rate",
+          "parity": "Parity",
+          "stopbits": "Stop bits",
+          "bytesize": "Byte size",
+          "address": "Modbus address",
+          "scan_interval": "Polling interval"
+        },
+        "data_description": {
+          "serial_port": "For example /dev/ttyUSB0, or COM3 on Windows.",
+          "address": "The RS485 address programmed into the meter (1-247).",
+          "scan_interval": "How often to read the meter, in seconds."
+        }
+      },
+      "tcp": {
+        "title": "Modbus TCP connection",
+        "description": "Used when the meter is reached through an RS485-to-Ethernet gateway.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "framer": "Framing",
+          "address": "Modbus address",
+          "scan_interval": "Polling interval"
+        },
+        "data_description": {
+          "host": "Hostname or IP address of the gateway.",
+          "framer": "Modbus TCP for a native gateway, or Modbus RTU over TCP for a transparent serial bridge.",
+          "address": "The RS485 address programmed into the meter (1-247).",
+          "scan_interval": "How often to read the meter, in seconds."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach the meter. Check the wiring, the Modbus address and the serial settings.",
+      "invalid_port": "That serial port does not exist on this system."
+    },
+    "abort": {
+      "already_configured": "This meter is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Polling",
+        "data": {
+          "scan_interval": "Polling interval"
+        },
+        "data_description": {
+          "scan_interval": "How often to read the meter, in seconds. The meter refreshes its measurements about once a second."
+        }
+      }
+    }
+  },
+  "selector": {
+    "parity": {
+      "options": {
+        "N": "None",
+        "E": "Even",
+        "O": "Odd"
+      }
+    },
+    "framer": {
+      "options": {
+        "socket": "Modbus TCP",
+        "rtu": "Modbus RTU over TCP"
+      }
+    }
+  },
+  "exceptions": {
+    "read_failed": {
+      "message": "Could not read from the meter: {error}"
+    },
+    "no_data": {
+      "message": "The meter responded but returned no usable register values."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "a_l1": {
+        "name": "Current L1"
+      },
+      "a_l2": {
+        "name": "Current L2"
+      },
+      "a_l3": {
+        "name": "Current L3"
+      },
+      "hz": {
+        "name": "Frequency"
+      },
+      "kvarh_neg_tot": {
+        "name": "Exported reactive energy"
+      },
+      "kvarh_pos_partial": {
+        "name": "Imported reactive energy (partial)"
+      },
+      "kvarh_pos_tot": {
+        "name": "Imported reactive energy"
+      },
+      "kwh_neg_l1": {
+        "name": "Exported energy L1"
+      },
+      "kwh_neg_l2": {
+        "name": "Exported energy L2"
+      },
+      "kwh_neg_l3": {
+        "name": "Exported energy L3"
+      },
+      "kwh_neg_tot": {
+        "name": "Exported energy"
+      },
+      "kwh_pos_l1": {
+        "name": "Imported energy L1"
+      },
+      "kwh_pos_l2": {
+        "name": "Imported energy L2"
+      },
+      "kwh_pos_l3": {
+        "name": "Imported energy L3"
+      },
+      "kwh_pos_partial": {
+        "name": "Imported energy (partial)"
+      },
+      "kwh_pos_t1": {
+        "name": "Imported energy tariff 1"
+      },
+      "kwh_pos_t2": {
+        "name": "Imported energy tariff 2"
+      },
+      "kwh_pos_tot": {
+        "name": "Imported energy"
+      },
+      "pf_l1": {
+        "name": "Power factor L1"
+      },
+      "pf_l2": {
+        "name": "Power factor L2"
+      },
+      "pf_l3": {
+        "name": "Power factor L3"
+      },
+      "pf_sys": {
+        "name": "Power factor"
+      },
+      "run_hour_meter": {
+        "name": "Run hours"
+      },
+      "v_l1_l2": {
+        "name": "Voltage L1-L2"
+      },
+      "v_l1_n": {
+        "name": "Voltage L1-N"
+      },
+      "v_l2_l3": {
+        "name": "Voltage L2-L3"
+      },
+      "v_l2_n": {
+        "name": "Voltage L2-N"
+      },
+      "v_l3_l1": {
+        "name": "Voltage L3-L1"
+      },
+      "v_l3_n": {
+        "name": "Voltage L3-N"
+      },
+      "v_ll_sys": {
+        "name": "Voltage L-L"
+      },
+      "v_ln_sys": {
+        "name": "Voltage L-N"
+      },
+      "va_l1": {
+        "name": "Apparent power L1"
+      },
+      "va_l2": {
+        "name": "Apparent power L2"
+      },
+      "va_l3": {
+        "name": "Apparent power L3"
+      },
+      "va_sys": {
+        "name": "Apparent power"
+      },
+      "var_l1": {
+        "name": "Reactive power L1"
+      },
+      "var_l2": {
+        "name": "Reactive power L2"
+      },
+      "var_l3": {
+        "name": "Reactive power L3"
+      },
+      "var_sys": {
+        "name": "Reactive power"
+      },
+      "w_dmd": {
+        "name": "Power demand"
+      },
+      "w_dmd_peak": {
+        "name": "Peak power demand"
+      },
+      "w_l1": {
+        "name": "Active power L1"
+      },
+      "w_l2": {
+        "name": "Active power L2"
+      },
+      "w_l3": {
+        "name": "Active power L3"
+      },
+      "w_sys": {
+        "name": "Active power"
+      },
+      "phase_sequence": {
+        "name": "Phase sequence",
+        "state": {
+          "l1_l2_l3": "L1-L2-L3",
+          "l1_l3_l2": "L1-L3-L2"
+        }
+      }
+    }
+  }
+}

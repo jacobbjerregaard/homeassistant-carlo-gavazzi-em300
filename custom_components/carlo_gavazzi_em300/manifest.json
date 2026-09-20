@@ -1,0 +1,13 @@
+{
+  "domain": "carlo_gavazzi_em300",
+  "name": "Carlo Gavazzi EM300",
+  "codeowners": ["@jacobbjerregaard"],
+  "config_flow": true,
+  "documentation": "https://github.com/jacobbjerregaard/homeassistant-carlo-gavazzi-em300",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/jacobbjerregaard/homeassistant-carlo-gavazzi-em300/issues",
+  "loggers": ["custom_components.carlo_gavazzi_em300", "pymodbus"],
+  "requirements": ["pymodbus>=3.8.3"],
+  "version": "0.1.0"
+}

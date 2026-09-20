@@ -1,0 +1,19 @@
+.vscode
+.DS_Store
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Test / local tooling
+.venv/
+.venv-ha/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Vendor protocol documentation (not redistributable)
+*.pdf
