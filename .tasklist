@@ -1,15 +1,24 @@
 [x] Confirm register model (LSW-first, word=address, value_weights=divisors)
-[x] Build core API layer (models, utils decode, batch, client, device, register_map)
+[x] Re-derive the register map from the protocol PDF (table 2.4-1)
+[x] Build core API layer (models, utils, batch, client, device, register_map)
 [x] Write const.py
 [x] Write __init__.py setup/unload
 [x] Write coordinator.py (Em300Coordinator + Em300RuntimeData + entry type)
 [x] Write entity.py base
-[x] Write config_flow.py (selection -> serial/network -> device)
-[ ] Write options_flow.py (reconfigure scan interval)
-[ ] Write entity_descriptions.py (register -> sensor metadata)
-[ ] Write sensor.py (register -> sensor entity)
-[ ] Write number.py (register -> number entity)
-[ ] Write switch.py (register -> switch entity)
-[ ] Write hacs.json + README.md + strings.json + translations/en.json
-[ ] Write unit tests (decode + register_map + config_flow)
-[ ] Verify: run tests + python import sanity
+[x] Write config_flow.py (transport menu -> serial/tcp -> identify)
+[x] Write options_flow.py (reconfigure scan interval)
+[x] Write entity_descriptions.py (register -> sensor metadata)
+[x] Write sensor.py (register -> sensor entity)
+[x] Write hacs.json + README.md + strings.json + translations/en.json
+[x] Write unit tests (models, decode, batch, register map, client, device)
+[x] Write Home Assistant tests (setup, sensors, config flow, options)
+[x] Verify: ruff, mypy, full test suite
+[x] CI workflows (lint, tests, HACS + hassfest validation)
+
+Not done / deliberately out of scope:
+[ ] Write number.py and switch.py (the programming-parameter tables of
+    section 2.9 are writable; nothing is exposed for writing yet)
+[ ] Verify readings against real hardware -- the register map is transcribed
+    from the protocol document and tested against it, but has never been
+    pointed at a meter
+[ ] Create the GitHub remote and push
