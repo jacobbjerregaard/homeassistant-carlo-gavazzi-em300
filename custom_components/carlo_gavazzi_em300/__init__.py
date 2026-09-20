@@ -55,8 +55,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: Em300ConfigEntry) -> bo
     return True
 
 
-async def _async_update_listener(
-    hass: HomeAssistant, entry: Em300ConfigEntry
-) -> None:
+async def _async_update_listener(hass: HomeAssistant, entry: Em300ConfigEntry) -> None:
     """Reload the entry when its options change."""
     await hass.config_entries.async_reload(entry.entry_id)

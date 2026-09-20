@@ -121,9 +121,7 @@ class Em300Client:
             )
 
         if result is None or result.isError():
-            raise ModbusException(
-                f"Modbus error writing 0x{address:04X}: {result}"
-            )
+            raise ModbusException(f"Modbus error writing 0x{address:04X}: {result}")
 
 
 class Em300SerialClient(Em300Client):
@@ -179,12 +177,20 @@ class Em300TcpClient(Em300Client):
         self.client = AsyncModbusTcpClient(
             host,
             port=port,
-            framer=(
-                FramerType.RTU if framer.lower() == "rtu" else FramerType.SOCKET
-            ),
+            framer=framer_type(framer),
             timeout=timeout,
             retries=retries,
         )
+
+
+def framer_type(framer: str) -> FramerType:
+    """Map a configured framing name to the pymodbus framer.
+
+    A native Modbus TCP gateway speaks ``socket`` framing; a transparent
+    RS485-to-Ethernet bridge tunnels raw RTU frames instead. Anything
+    unrecognised falls back to Modbus TCP, which is the common case.
+    """
+    return FramerType.RTU if framer.lower() == "rtu" else FramerType.SOCKET
 
 
 def _validate_serial_port(port: str) -> None:

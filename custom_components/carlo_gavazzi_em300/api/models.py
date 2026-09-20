@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 
 
-class RegisterDataType(str, Enum):
+class RegisterDataType(StrEnum):
     """Supported Modbus register data formats on the EM/ET300 register map.
 
     Per section 2.1 of the communication protocol, the byte order inside a
@@ -36,7 +36,7 @@ _FIXED_WIDTHS: dict[RegisterDataType, int] = {
 }
 
 
-class Series(str, Enum):
+class Series(StrEnum):
     """Meter families in the EM/ET300 range.
 
     Some registers exist only on part of the range (the run-hour meter is

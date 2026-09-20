@@ -50,9 +50,7 @@ def decode_register(
     for address in register.addresses:
         word = register_values.get(address)
         if word is None:
-            _LOGGER.debug(
-                "missing word 0x%04X for register %s", address, register.name
-            )
+            _LOGGER.debug("missing word 0x%04X for register %s", address, register.name)
             return None
         words.append(word)
 

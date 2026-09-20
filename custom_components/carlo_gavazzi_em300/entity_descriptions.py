@@ -46,7 +46,7 @@ def _measurement(
     *,
     default: bool = False,
 ) -> Em300SensorEntityDescription:
-    """An instantaneous reading, e.g. a voltage, current or power."""
+    """Describe an instantaneous reading: a voltage, current or power."""
     return Em300SensorEntityDescription(
         key=key,
         translation_key=key,
@@ -65,7 +65,7 @@ def _total(
     *,
     default: bool = False,
 ) -> Em300SensorEntityDescription:
-    """A cumulative meter reading that only ever climbs (or is reset)."""
+    """Describe a cumulative meter reading that climbs or is reset."""
     return Em300SensorEntityDescription(
         key=key,
         translation_key=key,
@@ -95,24 +95,16 @@ EM300_SENSOR_DESCRIPTIONS: tuple[Em300SensorEntityDescription, ...] = (
     _measurement("v_ln_sys", SensorDeviceClass.VOLTAGE, VOLT, default=True),
     _measurement("v_ll_sys", SensorDeviceClass.VOLTAGE, VOLT, default=True),
     _measurement("w_sys", SensorDeviceClass.POWER, WATT, default=True),
-    _measurement(
-        "va_sys", SensorDeviceClass.APPARENT_POWER, VOLT_AMPERE, default=True
-    ),
-    _measurement(
-        "var_sys", SensorDeviceClass.REACTIVE_POWER, VAR, default=True
-    ),
+    _measurement("va_sys", SensorDeviceClass.APPARENT_POWER, VOLT_AMPERE, default=True),
+    _measurement("var_sys", SensorDeviceClass.REACTIVE_POWER, VAR, default=True),
     # Power factor is dimensionless; the device class supplies the meaning.
     _measurement("pf_sys", SensorDeviceClass.POWER_FACTOR, None, default=True),
     _measurement("hz", SensorDeviceClass.FREQUENCY, HERTZ, default=True),
     # --- Energy totalizers (enabled by default) ---------------------------
     _total("kwh_pos_tot", SensorDeviceClass.ENERGY, KWH, default=True),
     _total("kwh_neg_tot", SensorDeviceClass.ENERGY, KWH, default=True),
-    _total(
-        "kvarh_pos_tot", SensorDeviceClass.REACTIVE_ENERGY, KVARH, default=True
-    ),
-    _total(
-        "kvarh_neg_tot", SensorDeviceClass.REACTIVE_ENERGY, KVARH, default=True
-    ),
+    _total("kvarh_pos_tot", SensorDeviceClass.REACTIVE_ENERGY, KVARH, default=True),
+    _total("kvarh_neg_tot", SensorDeviceClass.REACTIVE_ENERGY, KVARH, default=True),
     # --- Demand power -----------------------------------------------------
     _measurement("w_dmd", SensorDeviceClass.POWER, WATT),
     _measurement("w_dmd_peak", SensorDeviceClass.POWER, WATT),

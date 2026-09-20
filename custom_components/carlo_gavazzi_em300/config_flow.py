@@ -57,7 +57,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def _int_box(minimum: int, maximum: int) -> vol.All:
-    """A numeric text box validated to an ``int`` in ``[minimum, maximum]``."""
+    """Build a numeric text box validated to an ``int`` in range."""
     return vol.All(
         selector.NumberSelector(
             selector.NumberSelectorConfig(
@@ -72,7 +72,7 @@ def _int_box(minimum: int, maximum: int) -> vol.All:
 
 
 def _select(options: list[str], translation_key: str) -> selector.SelectSelector:
-    """A translated dropdown over a fixed set of string options."""
+    """Build a translated dropdown over a fixed set of string options."""
     return selector.SelectSelector(
         selector.SelectSelectorConfig(
             options=options,
@@ -83,8 +83,16 @@ def _select(options: list[str], translation_key: str) -> selector.SelectSelector
 
 
 def _int_select(options: list[int]) -> vol.All:
-    """A dropdown over a fixed set of integers, coerced back to ``int``."""
+    """Build a dropdown over a fixed set of integers.
+
+    A ``SelectSelector`` only accepts strings, but these settings are integers
+    everywhere else -- in the defaults fed back into the form, in the stored
+    entry and in what pymodbus expects. So the value is stringified on the way
+    in and coerced back on the way out, and the integer type never leaks into
+    the rest of the integration.
+    """
     return vol.All(
+        vol.Coerce(str),
         selector.SelectSelector(
             selector.SelectSelectorConfig(
                 options=[str(option) for option in options],
@@ -96,7 +104,7 @@ def _int_select(options: list[int]) -> vol.All:
 
 
 def _common_schema(defaults: dict[str, Any]) -> dict:
-    """The address and scan-interval fields shared by both transports."""
+    """Build the address and scan-interval fields shared by both transports."""
     return {
         vol.Required(
             CONF_ADDRESS, default=defaults.get(CONF_ADDRESS, DEFAULT_ADDRESS)
@@ -188,9 +196,7 @@ class Em300ConfigFlow(ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Collect and validate Modbus TCP connection settings."""
-        return await self._async_step_transport(
-            Transport.TCP, tcp_schema, user_input
-        )
+        return await self._async_step_transport(Transport.TCP, tcp_schema, user_input)
 
     async def _async_step_transport(
         self,
@@ -202,9 +208,7 @@ class Em300ConfigFlow(ConfigFlow, domain=DOMAIN):
         self._transport = transport
 
         if user_input is None:
-            return self.async_show_form(
-                step_id=transport, data_schema=schema_builder()
-            )
+            return self.async_show_form(step_id=transport, data_schema=schema_builder())
 
         data = {CONF_TRANSPORT: transport, **user_input}
 
@@ -245,9 +249,11 @@ class Em300ConfigFlow(ConfigFlow, domain=DOMAIN):
         await self.async_set_unique_id(unique_id)
         self._abort_if_unique_id_configured()
 
-        name = f"{info.model} {info.serial_number}".strip() if (
-            info.serial_number
-        ) else info.model
+        name = (
+            f"{info.model} {info.serial_number}".strip()
+            if (info.serial_number)
+            else info.model
+        )
 
         data = {
             **data,

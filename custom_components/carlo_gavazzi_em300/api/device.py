@@ -98,9 +98,7 @@ class Em300Device:
 
         self.info = info
         self.registers = tuple(
-            register
-            for register in EM300_REGISTERS
-            if register.supported_by(series)
+            register for register in EM300_REGISTERS if register.supported_by(series)
         )
         self.batch = RegisterBatch(self.registers)
 

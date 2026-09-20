@@ -51,9 +51,7 @@ def split_addresses(
     return reads
 
 
-def _split_run(
-    start: int, end: int, maximum_length: int
-) -> list[tuple[int, int]]:
+def _split_run(start: int, end: int, maximum_length: int) -> list[tuple[int, int]]:
     """Chop the inclusive run ``[start, end]`` into <= maximum_length chunks."""
     width = end - start + 1
     return [
