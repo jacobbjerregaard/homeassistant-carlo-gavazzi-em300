@@ -47,7 +47,7 @@ class TestSerial:
                 CONF_TRANSPORT: Transport.SERIAL,
                 CONF_SERIAL_PORT: serial_port,
                 CONF_BAUDRATE: 19200,
-                CONF_PARITY: "E",
+                CONF_PARITY: "even",
                 CONF_STOPBITS: 2,
                 CONF_BYTESIZE: 7,
                 CONF_ADDRESS: 3,
@@ -56,6 +56,7 @@ class TestSerial:
 
         params = client.client.comm_params
         assert params.baudrate == 19200
+        # Stored spelled out, handed to pymodbus as its character.
         assert params.parity == "E"
         assert params.stopbits == 2
         assert params.bytesize == 7

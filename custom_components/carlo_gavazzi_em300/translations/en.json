@@ -79,9 +79,9 @@
   "selector": {
     "parity": {
       "options": {
-        "N": "None",
-        "E": "Even",
-        "O": "Odd"
+        "none": "None",
+        "even": "Even",
+        "odd": "Odd"
       }
     },
     "framer": {

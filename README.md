@@ -54,6 +54,12 @@ the meter's own serial port configuration menu. The factory defaults are
 4. Go to **Settings -> Devices & services -> Add integration** and search for
    *Carlo Gavazzi EM300*.
 
+> HACS shows a "brands" warning for this repository. It is cosmetic: the
+> integration installs and works normally. Clearing it requires Carlo Gavazzi's
+> own icon and logo to be accepted into the
+> [home-assistant/brands](https://github.com/home-assistant/brands) repository,
+> which is only a prerequisite for listing in the HACS default store.
+
 ### Manual
 
 Copy `custom_components/carlo_gavazzi_em300` into your Home Assistant

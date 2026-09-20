@@ -41,11 +41,24 @@ class Transport(StrEnum):
 
 
 class ParityOption(StrEnum):
-    """Serial parity settings, as the single character pymodbus expects."""
+    """Serial parity settings.
 
-    NONE = "N"
-    EVEN = "E"
-    ODD = "O"
+    Spelled out rather than stored as the single character pymodbus wants,
+    because these double as translation keys and Home Assistant requires
+    those to match ``[a-z0-9-_]+``. :data:`PARITY_CHARACTERS` maps them back.
+    """
+
+    NONE = "none"
+    EVEN = "even"
+    ODD = "odd"
+
+
+#: The character pymodbus expects for each parity setting.
+PARITY_CHARACTERS: dict[str, str] = {
+    ParityOption.NONE: "N",
+    ParityOption.EVEN: "E",
+    ParityOption.ODD: "O",
+}
 
 
 class FramerOption(StrEnum):

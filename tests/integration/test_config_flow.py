@@ -28,7 +28,7 @@ from .conftest import TEST_PORT, TEST_SERIAL, FakeTransport, patch_client
 SERIAL_INPUT = {
     CONF_SERIAL_PORT: TEST_PORT,
     CONF_BAUDRATE: 9600,
-    CONF_PARITY: "N",
+    CONF_PARITY: "none",
     CONF_STOPBITS: 1,
     CONF_BYTESIZE: 8,
     CONF_ADDRESS: 1,

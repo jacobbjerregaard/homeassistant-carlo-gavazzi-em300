@@ -26,6 +26,30 @@ def source(name: str) -> str:
     return (COMPONENT / name).read_text()
 
 
+def walk_keys(node, path=""):
+    """Yield every (dotted path, key) pair in the strings tree."""
+    if isinstance(node, dict):
+        for key, value in node.items():
+            yield path, key
+            yield from walk_keys(value, f"{path}.{key}" if path else key)
+
+
+# Home Assistant requires translation keys to be lowercase slugs. hassfest
+# enforces it in CI; this catches it before the push. The values of an
+# options dict are display text, but the keys are translation keys, which is
+# how the parity dropdown once shipped "N"/"E"/"O" and failed validation.
+KEY_PATTERN = re.compile(r"^[a-z0-9-_]+$")
+
+
+def test_every_translation_key_is_a_valid_slug():
+    bad = [
+        f"{parent}.{key}"
+        for parent, key in walk_keys(STRINGS)
+        if not KEY_PATTERN.match(key)
+    ]
+    assert not bad, f"invalid translation keys: {bad}"
+
+
 def test_en_json_matches_strings_json():
     # strings.json is the source; translations/en.json is its English copy.
     assert json.loads((COMPONENT / "translations/en.json").read_text()) == STRINGS
@@ -113,7 +137,7 @@ class TestConfigFlow:
 class TestSelectors:
     @pytest.mark.parametrize(
         ("key", "options"),
-        [("parity", {"N", "E", "O"}), ("framer", {"socket", "rtu"})],
+        [("parity", {"none", "even", "odd"}), ("framer", {"socket", "rtu"})],
     )
     def test_every_dropdown_option_is_translated(self, key, options):
         assert set(STRINGS["selector"][key]["options"]) == options
