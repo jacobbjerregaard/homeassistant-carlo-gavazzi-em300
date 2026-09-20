@@ -121,6 +121,27 @@ class TestStrings:
         values = {0x5000 + i: ord(c) for i, c in enumerate("AB     ")}
         assert decode_register(self.register, values) == "AB"
 
+    def test_nul_padding_is_stripped(self):
+        # str.strip() does not remove NULs, so a meter that NUL-pads a short
+        # serial number used to yield "AB\x00\x00\x00\x00\x00".
+        values = {0x5000 + i: v for i, v in enumerate([0x41, 0x42, 0, 0, 0, 0, 0])}
+        assert decode_register(self.register, values) == "AB"
+
+    def test_an_all_zero_block_decodes_to_the_empty_string(self):
+        # A meter that does not know its own serial number answers with zeros.
+        # This has to be falsy, or callers cannot tell it from a real value and
+        # every such meter ends up sharing one unique id.
+        values = {0x5000 + i: 0 for i in range(7)}
+        decoded = decode_register(self.register, values)
+        assert decoded == ""
+        assert not decoded
+
+    def test_control_characters_are_dropped(self):
+        values = {
+            0x5000 + i: v for i, v in enumerate([0x41, 0x0A, 0x42, 0x7F, 0, 0, 0])
+        }
+        assert decode_register(self.register, values) == "AB"
+
 
 class TestMissingWords:
     """A short read must drop only the registers it actually affects."""

@@ -217,6 +217,62 @@ class TestUniqueIdFallback:
         assert unique_ids == {f"{TEST_PORT}:1", f"{TEST_PORT}:2"}
 
 
+class TestZeroSerialNumber:
+    """A meter that implements the serial block but reports zeros.
+
+    This is not the same as a meter that refuses the read: the words come back
+    fine, they are just all zero. str.strip() does not remove NULs, so the
+    decoded serial used to be a seven-character string that looked perfectly
+    valid to every caller.
+    """
+
+    @pytest.fixture
+    def zero_serial_meter(self):
+        transport = FakeTransport()
+        for offset in range(7):
+            transport.words[0x5000 + offset] = 0
+        return transport
+
+    async def test_it_falls_back_to_port_and_address(self, hass, zero_serial_meter):
+        with patch_client(return_value=zero_serial_meter):
+            form = await start_flow(hass, "serial")
+            await hass.config_entries.flow.async_configure(
+                form["flow_id"], SERIAL_INPUT
+            )
+
+        entry = hass.config_entries.async_entries(DOMAIN)[0]
+        assert entry.unique_id == f"{TEST_PORT}:1"
+
+    async def test_no_nuls_leak_into_the_title_or_the_stored_serial(
+        self, hass, zero_serial_meter
+    ):
+        with patch_client(return_value=zero_serial_meter):
+            form = await start_flow(hass, "serial")
+            result = await hass.config_entries.flow.async_configure(
+                form["flow_id"], SERIAL_INPUT
+            )
+
+        assert result["data"][CONF_SERIAL_NUMBER] is None
+        assert result["title"] == "EM340"
+        assert "\x00" not in result["title"]
+
+    async def test_two_such_meters_on_one_bus_stay_distinct(
+        self, hass, zero_serial_meter
+    ):
+        # Both used to collide on a unique id of seven NUL bytes, so the
+        # second meter was rejected as already configured.
+        with patch_client(return_value=zero_serial_meter):
+            for address in (1, 2):
+                form = await start_flow(hass, "serial")
+                result = await hass.config_entries.flow.async_configure(
+                    form["flow_id"], {**SERIAL_INPUT, CONF_ADDRESS: address}
+                )
+                assert result["type"] is FlowResultType.CREATE_ENTRY
+
+        unique_ids = {e.unique_id for e in hass.config_entries.async_entries(DOMAIN)}
+        assert unique_ids == {f"{TEST_PORT}:1", f"{TEST_PORT}:2"}
+
+
 class TestOptionsFlow:
     async def test_the_poll_interval_can_be_changed(
         self, hass, config_entry, mock_client

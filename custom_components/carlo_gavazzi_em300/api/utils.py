@@ -37,6 +37,22 @@ def to_signed(value: int, bits: int) -> int:
     return (value & (sign_bit - 1)) - (value & sign_bit)
 
 
+def _decode_string(words: list[int]) -> str:
+    """Assemble an ASCII string from one character per word.
+
+    The protocol puts the character in each word's LSB and marks the MSB "not
+    to be used". Anything outside printable ASCII is dropped rather than
+    carried through: meters pad the block with NULs, and one that does not know
+    its own serial number answers with an all-zero block. ``str.strip()`` does
+    not remove NULs, so leaving them in would produce a string that still looks
+    non-empty to every caller -- and end up in a unique id, an entry title and
+    the entity ids slugified from it.
+    """
+    return "".join(
+        character for word in words if " " <= (character := chr(word & 0xFF)) <= "~"
+    ).strip()
+
+
 def decode_register(
     register: Em300Register,
     register_values: Mapping[int, int],
@@ -55,8 +71,7 @@ def decode_register(
         words.append(word)
 
     if register.data_type is RegisterDataType.STRING:
-        # One ASCII character per word, in the LSB; the MSB is reserved.
-        return "".join(chr(word & 0xFF) for word in words).strip()
+        return _decode_string(words)
 
     if register.data_type in _MULTI_WORD:
         # Words arrive least-significant first, so fold them in reverse.
