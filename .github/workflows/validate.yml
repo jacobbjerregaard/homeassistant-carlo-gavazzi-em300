@@ -25,12 +25,6 @@ jobs:
         uses: "hacs/action@main"
         with:
           category: "integration"
-          # The brands check requires Carlo Gavazzi's own icon and logo, either
-          # committed here or accepted into home-assistant/brands. Neither is
-          # ours to invent, and the check only gates inclusion in the HACS
-          # default store -- installing this as a custom repository does not
-          # need it. See the README for what submitting the real assets takes.
-          ignore: "brands"
 
   validate-hassfest:
     name: Hassfest
