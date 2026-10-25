@@ -21,7 +21,9 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass: HomeAssistant, entry: Em300ConfigEntry) -> bool:
     """Set up an EM/ET300 meter from a config entry."""
     try:
-        client = client_from_config(dict(entry.data))
+        # Validating a serial port touches the filesystem, so build the
+        # client in the executor rather than blocking the event loop.
+        client = await hass.async_add_executor_job(client_from_config, dict(entry.data))
     except Em300Exception as err:
         # Typically a serial port that is not there right now; worth retrying
         # in case the adapter is plugged back in.

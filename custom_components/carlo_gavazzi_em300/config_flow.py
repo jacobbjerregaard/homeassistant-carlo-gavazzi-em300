@@ -258,7 +258,8 @@ class Em300ConfigFlow(ConfigFlow, domain=DOMAIN):
 
         The connection is always closed again; setup opens its own.
         """
-        device = Em300Device(client_from_config(data))
+        client = await self.hass.async_add_executor_job(client_from_config, data)
+        device = Em300Device(client)
         try:
             await device.connect()
             return await device.identify()
